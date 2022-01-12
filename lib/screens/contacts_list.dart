@@ -1,6 +1,8 @@
 import 'package:bytebank/database/dao/contact_dao.dart';
 import 'package:bytebank/models/contacts.dart';
 import 'package:bytebank/screens/contact_form.dart';
+import 'package:bytebank/screens/transaction_form.dart';
+import 'package:bytebank/widget/progress.dart';
 import 'package:flutter/material.dart';
 
 class ContactsList extends StatefulWidget {
@@ -17,7 +19,7 @@ class _ContactsListState extends State<ContactsList> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
-        title: const Text('Contacts'),
+        title: const Text('Transfers'),
       ),
       body: FutureBuilder<List<Contact>>(
         initialData: const [],
@@ -27,15 +29,7 @@ class _ContactsListState extends State<ContactsList> {
             case ConnectionState.none:
               break;
             case ConnectionState.waiting:
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    CircularProgressIndicator(),
-                    Text('Loading'),
-                  ],
-                ),
-              );
+              return const Progress();
             case ConnectionState.active:
               break;
             case ConnectionState.done:
@@ -45,6 +39,10 @@ class _ContactsListState extends State<ContactsList> {
                   Contact contact = contacts![index];
                   return _ContactItem(
                     contact: contact,
+                    onClick: () {
+                      Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => TransactionForm(contact)));
+                    },
                   );
                 },
                 itemCount: contacts!.length,
@@ -68,13 +66,16 @@ class _ContactsListState extends State<ContactsList> {
 
 class _ContactItem extends StatelessWidget {
   final Contact contact;
+  final Function onClick;
 
-  const _ContactItem({Key? key, required this.contact}) : super(key: key);
+  const _ContactItem({Key? key, required this.contact, required this.onClick})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        onTap: () => onClick(),
         title: Text(
           contact.name,
           style: const TextStyle(fontSize: 24.0),
