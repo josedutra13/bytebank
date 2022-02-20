@@ -28,19 +28,6 @@ class ContactDao {
     final List<Map<String, dynamic>> result = await db.query(_tableName);
     List<Contact> contacts = _toList(result);
     return contacts;
-    // return getDatabase().then((db) {
-    //   return db.query('contacts').then((maps) {
-    //     final List<Contact> contacts = [];
-    //     for (Map<String, dynamic> map in maps) {
-    //       final Contact contact = Contact(
-    //           name: map['name'],
-    //           id: map['id'],
-    //           accountNumber: map['accountNumber']);
-    //       contacts.add(contact);
-    //     }
-    //     return contacts;
-    //   });
-    // });
   }
 
   List<Contact> _toList(List<Map<String, dynamic>> result) {

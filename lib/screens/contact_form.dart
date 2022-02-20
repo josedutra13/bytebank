@@ -1,23 +1,20 @@
-import 'package:bytebank/database/app_database.dart';
 import 'package:bytebank/database/dao/contact_dao.dart';
 import 'package:bytebank/models/contacts.dart';
+import 'package:bytebank/widget/app_dependencies.dart';
 import 'package:flutter/material.dart';
 
 class ContactForm extends StatefulWidget {
-  const ContactForm({Key? key}) : super(key: key);
-
   @override
   State<ContactForm> createState() => _ContactFormState();
 }
 
 class _ContactFormState extends State<ContactForm> {
   final TextEditingController _nameController = TextEditingController();
-
   final TextEditingController _accountController = TextEditingController();
-  final _contactDao = ContactDao();
 
   @override
   Widget build(BuildContext context) {
+    final dependencies = AppDependencies.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -52,9 +49,7 @@ class _ContactFormState extends State<ContactForm> {
                             int.tryParse(_accountController.text)!;
                         final nContact = Contact(
                             name: name, accountNumber: accountNumber, id: 0);
-                        _contactDao
-                            .save(nContact)
-                            .then((id) => Navigator.pop(context));
+                        _save(dependencies.contactDao, nContact, context);
                       },
                       child: const Text('Create'))),
             )
@@ -62,5 +57,12 @@ class _ContactFormState extends State<ContactForm> {
         ),
       ),
     );
+  }
+
+  void _save(
+      ContactDao contactDao, Contact nContact, BuildContext context) async {
+    var response = await contactDao.save(nContact);
+    print(response.toString());
+    Navigator.pop(context, nContact);
   }
 }

@@ -5,4 +5,4 @@ import 'interceptors/interceptor.dart';
 
 final Client client =
     InterceptedClient.build(interceptors: [LoggingInterceptor()]);
-final Uri baseUrl = Uri.parse('http://192.168.2.108:8080/transactions');
+final Uri baseUrl = Uri.parse('http://192.168.2.106:8080/transactions');

@@ -1,7 +1,7 @@
-import 'package:bytebank/database/dao/contact_dao.dart';
 import 'package:bytebank/models/contacts.dart';
 import 'package:bytebank/screens/contact_form.dart';
 import 'package:bytebank/screens/transaction_form.dart';
+import 'package:bytebank/widget/app_dependencies.dart';
 import 'package:bytebank/widget/progress.dart';
 import 'package:flutter/material.dart';
 
@@ -13,9 +13,9 @@ class ContactsList extends StatefulWidget {
 }
 
 class _ContactsListState extends State<ContactsList> {
-  final _contactDao = ContactDao();
   @override
   Widget build(BuildContext context) {
+    final dependencies = AppDependencies.of(context);
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).primaryColor,
@@ -23,7 +23,7 @@ class _ContactsListState extends State<ContactsList> {
       ),
       body: FutureBuilder<List<Contact>>(
         initialData: const [],
-        future: _contactDao.findAll(),
+        future: dependencies.contactDao.findAll(),
         builder: (context, snapshot) {
           switch (snapshot.connectionState) {
             case ConnectionState.none:
@@ -33,11 +33,11 @@ class _ContactsListState extends State<ContactsList> {
             case ConnectionState.active:
               break;
             case ConnectionState.done:
-              final List<Contact>? contacts = snapshot.data;
+              final List<Contact> contacts = snapshot.data!;
               return ListView.builder(
                 itemBuilder: (context, index) {
-                  Contact contact = contacts![index];
-                  return _ContactItem(
+                  Contact contact = contacts[index];
+                  return ContactItem(
                     contact: contact,
                     onClick: () {
                       Navigator.of(context).push(MaterialPageRoute(
@@ -45,18 +45,23 @@ class _ContactsListState extends State<ContactsList> {
                     },
                   );
                 },
-                itemCount: contacts!.length,
+                itemCount: contacts.length,
               );
           }
-          return const Text('');
+          return const Text('Unknown error');
         },
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context)
-              .push(
-                  MaterialPageRoute(builder: (context) => const ContactForm()))
-              .then((value) => setState(() {}));
+              .push(MaterialPageRoute(builder: (context) => ContactForm()))
+              .then((nContact) {
+            if (nContact != null) {
+              setState(() {
+                dependencies.contactDao.findAll();
+              });
+            }
+          });
         },
         child: const Icon(Icons.add),
       ),
@@ -64,11 +69,11 @@ class _ContactsListState extends State<ContactsList> {
   }
 }
 
-class _ContactItem extends StatelessWidget {
+class ContactItem extends StatelessWidget {
   final Contact contact;
   final Function onClick;
 
-  const _ContactItem({Key? key, required this.contact, required this.onClick})
+  const ContactItem({Key? key, required this.contact, required this.onClick})
       : super(key: key);
 
   @override
